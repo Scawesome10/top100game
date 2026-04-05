@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { database } from '../firebase.config';
+import { ref, onValue } from 'firebase/database';
 import { confessions } from '../data';
-import { updatePlayerVote, updatePlayerGuess, nextConfession, getGameRoom, subscribeToRoom } from '../gameManager';
+import { updatePlayerVote, updatePlayerGuess, nextConfession } from '../gameManager';
 import type { GameRoom, Player } from '../types';
 import './GameView.css';
 
@@ -23,9 +25,11 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
   const [showRole, setShowRole] = useState(false);
 
   useEffect(() => {
-    const loadRoom = async () => {
-      const roomData = await getGameRoom(roomCode);
-      if (roomData) {
+    const roomRef = ref(database, `rooms/${roomCode}`);
+
+    const unsubscribe = onValue(roomRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const roomData = snapshot.val() as GameRoom;
         setRoom(roomData);
 
         const playerList = Object.values(roomData.players || {});
@@ -42,12 +46,7 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
           onGameEnd();
         }
       }
-    };
-
-    loadRoom();
-
-    // Subscribe to room changes
-    const unsubscribe = subscribeToRoom(roomCode, loadRoom);
+    });
 
     return () => {
       unsubscribe();

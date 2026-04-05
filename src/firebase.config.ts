@@ -2,16 +2,16 @@ import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 
-// Firebase configuration - using a demo project
-// For production, replace with your own Firebase credentials
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBkXqJxEFUb_KsJdxJxPlZfJxX8dVk5XQU",
-  authDomain: "too-far-game.firebaseapp.com",
-  projectId: "too-far-game",
-  storageBucket: "too-far-game.appspot.com",
-  messagingSenderId: "123456789",
-  databaseURL: "https://too-far-game-default-rtdb.firebaseio.com",
-  appId: "1:123456789:web:abcd1234efgh5678ijkl9012"
+  apiKey: "AIzaSyAUdoXEXxfKMUwbNvRkhz4L0SQdD5jPEuA",
+  authDomain: "too-far-61df3.firebaseapp.com",
+  databaseURL: "https://too-far-61df3-default-rtdb.firebaseio.com",
+  projectId: "too-far-61df3",
+  storageBucket: "too-far-61df3.firebasestorage.app",
+  messagingSenderId: "1003510689024",
+  appId: "1:1003510689024:web:021490b81bc16697fe57e5",
+  measurementId: "G-J1YXVC81W0"
 };
 
 // Initialize Firebase

@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { database } from '../firebase.config';
-import { ref, onValue, off } from 'firebase/database';
-import { startGame, deleteRoom } from '../gameManager';
+import { useState, useEffect } from 'react';
+import { startGame, deleteRoom, getGameRoom, subscribeToRoom } from '../gameManager';
 import type { GameRoom } from '../types';
 import './RoomLobby.css';
 
@@ -24,11 +22,9 @@ const RoomLobby: React.FC<RoomLobbyProps> = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const roomRef = ref(database, `rooms/${roomCode}`);
-
-    const unsubscribe = onValue(roomRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const roomData = snapshot.val() as GameRoom;
+    const loadRoom = async () => {
+      const roomData = await getGameRoom(roomCode);
+      if (roomData) {
         setRoom(roomData);
         setIsHost(roomData.hostId === playerId);
 
@@ -37,10 +33,14 @@ const RoomLobby: React.FC<RoomLobbyProps> = ({
           onGameStart();
         }
       }
-    });
+    };
+
+    loadRoom();
+
+    // Subscribe to room changes
+    const unsubscribe = subscribeToRoom(roomCode, loadRoom);
 
     return () => {
-      off(roomRef);
       unsubscribe();
     };
   }, [roomCode, playerId, onGameStart]);

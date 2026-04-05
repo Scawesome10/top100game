@@ -1,21 +1,45 @@
-import { database } from './firebase.config';
-import { ref, set, get, remove } from 'firebase/database';
+// Local game state manager using localStorage
+// This is a simplified version that works immediately without external backends
+
 import type { Player, GameRoom } from './types';
 
-// Generate a room code (4 characters)
+const STORAGE_KEY = 'too_far_game_rooms';
+
+// In-memory listeners for real-time updates
+const listeners: { [roomCode: string]: Set<() => void> } = {};
+
 export const generateRoomCode = (): string => {
   return Math.random().toString(36).substring(2, 6).toUpperCase();
 };
 
-// Generate a player ID
 export const generatePlayerId = (): string => {
   return Math.random().toString(36).substring(2, 9);
 };
 
-// Create a new game room
+const getAllRooms = (): { [key: string]: GameRoom } => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveRooms = (rooms: { [key: string]: GameRoom }) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
+    // Notify all listeners
+    Object.keys(listeners).forEach(roomCode => {
+      listeners[roomCode].forEach(listener => listener());
+    });
+  } catch (e) {
+    console.error('Failed to save rooms:', e);
+  }
+};
+
 export const createGameRoom = async (): Promise<string> => {
   const roomCode = generateRoomCode();
-  const roomRef = ref(database, `rooms/${roomCode}`);
+  const rooms = getAllRooms();
 
   const newRoom: GameRoom = {
     id: roomCode,
@@ -28,25 +52,24 @@ export const createGameRoom = async (): Promise<string> => {
     createdAt: Date.now(),
   };
 
-  await set(roomRef, newRoom);
+  rooms[roomCode] = newRoom;
+  saveRooms(rooms);
   return roomCode;
 };
 
-// Join a game room
 export const joinGameRoom = async (
   roomCode: string,
   playerName: string,
   playerId: string,
   isHost: boolean = false
 ): Promise<boolean> => {
-  const roomRef = ref(database, `rooms/${roomCode}`);
-  const snapshot = await get(roomRef);
-
-  if (!snapshot.exists()) {
+  const rooms = getAllRooms();
+  
+  if (!rooms[roomCode]) {
     return false;
   }
 
-  const room = snapshot.val() as GameRoom;
+  const room = rooms[roomCode];
 
   const newPlayer: Player = {
     id: playerId,
@@ -57,56 +80,57 @@ export const joinGameRoom = async (
     joinedAt: Date.now(),
   };
 
-  const playerRef = ref(database, `rooms/${roomCode}/players/${playerId}`);
-  await set(playerRef, newPlayer);
+  room.players[playerId] = newPlayer;
 
-  // Update host if this is the first player
-  if (Object.keys(room.players).length === 0) {
-    const hostRef = ref(database, `rooms/${roomCode}/hostId`);
-    await set(hostRef, playerId);
+  // Set host if this is the first player
+  if (Object.keys(room.players).length === 1) {
+    room.hostId = playerId;
   }
 
+  saveRooms(rooms);
   return true;
 };
 
-// Get game room
 export const getGameRoom = async (roomCode: string): Promise<GameRoom | null> => {
-  const roomRef = ref(database, `rooms/${roomCode}`);
-  const snapshot = await get(roomRef);
-
-  if (!snapshot.exists()) {
-    return null;
-  }
-
-  return snapshot.val() as GameRoom;
+  const rooms = getAllRooms();
+  return rooms[roomCode] || null;
 };
 
-// Update player vote
 export const updatePlayerVote = async (
   roomCode: string,
   playerId: string,
   vote: 'acceptable' | 'too-far'
 ): Promise<void> => {
-  const voteRef = ref(database, `rooms/${roomCode}/roundVotes/${playerId}`);
-  await set(voteRef, vote);
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
 
-  const playerRef = ref(database, `rooms/${roomCode}/players/${playerId}/vote`);
-  await set(playerRef, vote);
+  if (!room) return;
+
+  room.roundVotes[playerId] = vote;
+  room.players[playerId].vote = vote;
+
+  saveRooms(rooms);
 };
 
-// Update player guess (who they think is the liar)
 export const updatePlayerGuess = async (
   roomCode: string,
   playerId: string,
   guessedPlayerId: string
 ): Promise<void> => {
-  const guessRef = ref(database, `rooms/${roomCode}/roundGuesses/${playerId}`);
-  await set(guessRef, guessedPlayerId);
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
+
+  if (!room) return;
+
+  room.roundGuesses[playerId] = guessedPlayerId;
+
+  saveRooms(rooms);
 };
 
-// Assign roles (majority truth, minority lie)
 export const assignRoles = async (roomCode: string): Promise<void> => {
-  const room = await getGameRoom(roomCode);
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
+
   if (!room) return;
 
   const playerIds = Object.keys(room.players);
@@ -120,76 +144,84 @@ export const assignRoles = async (roomCode: string): Promise<void> => {
 
   for (let i = 0; i < shuffled.length; i++) {
     const role = i < numLiars ? 'lie' : 'truth';
-    const roleRef = ref(database, `rooms/${roomCode}/players/${shuffled[i]}/role`);
-    await set(roleRef, role);
+    room.players[shuffled[i]].role = role;
   }
+
+  saveRooms(rooms);
 };
 
-// Start the game
 export const startGame = async (roomCode: string): Promise<void> => {
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
+
+  if (!room) return;
+
   await assignRoles(roomCode);
 
-  const statusRef = ref(database, `rooms/${roomCode}/gameStatus`);
-  await set(statusRef, 'voting');
-
-  const startTimeRef = ref(database, `rooms/${roomCode}/startedAt`);
-  await set(startTimeRef, Date.now());
-
-  // Reset votes for new round
-  const votesRef = ref(database, `rooms/${roomCode}/roundVotes`);
-  await set(votesRef, {});
-
-  const guessesRef = ref(database, `rooms/${roomCode}/roundGuesses`);
-  await set(guessesRef, {});
+  room.gameStatus = 'voting';
+  room.startedAt = Date.now();
+  room.roundVotes = {};
+  room.roundGuesses = {};
 
   // Reset player votes
-  const room = await getGameRoom(roomCode);
-  if (room) {
-    for (const playerId of Object.keys(room.players)) {
-      const playerVoteRef = ref(database, `rooms/${roomCode}/players/${playerId}/vote`);
-      await set(playerVoteRef, null);
-    }
+  for (const playerId of Object.keys(room.players)) {
+    room.players[playerId].vote = null;
   }
+
+  saveRooms(rooms);
 };
 
-// Move to next confession
 export const nextConfession = async (roomCode: string): Promise<void> => {
-  const confessionRef = ref(database, `rooms/${roomCode}/confessionIndex`);
-  const room = await getGameRoom(roomCode);
-  if (room) {
-    await set(confessionRef, room.confessionIndex + 1);
-  }
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
 
-  // Reset votes for new round
-  const votesRef = ref(database, `rooms/${roomCode}/roundVotes`);
-  await set(votesRef, {});
+  if (!room) return;
 
-  const guessesRef = ref(database, `rooms/${roomCode}/roundGuesses`);
-  await set(guessesRef, {});
+  room.confessionIndex += 1;
+  room.roundVotes = {};
+  room.roundGuesses = {};
 
-  // Reset player votes and reset role assignment
-  const room2 = await getGameRoom(roomCode);
-  if (room2) {
-    for (const playerId of Object.keys(room2.players)) {
-      const playerVoteRef = ref(database, `rooms/${roomCode}/players/${playerId}/vote`);
-      await set(playerVoteRef, null);
-      const playerRoleRef = ref(database, `rooms/${roomCode}/players/${playerId}/role`);
-      await set(playerRoleRef, null);
-    }
+  // Reset player votes and roles
+  for (const playerId of Object.keys(room.players)) {
+    room.players[playerId].vote = null;
+    room.players[playerId].role = null;
   }
 
   // Re-assign roles
   await assignRoles(roomCode);
+
+  saveRooms(rooms);
 };
 
-// Reveal results and move to guessing phase
 export const revealResults = async (roomCode: string): Promise<void> => {
-  const statusRef = ref(database, `rooms/${roomCode}/gameStatus`);
-  await set(statusRef, 'results');
+  const rooms = getAllRooms();
+  const room = rooms[roomCode];
+
+  if (!room) return;
+
+  room.gameStatus = 'results';
+  saveRooms(rooms);
 };
 
-// Delete room
 export const deleteRoom = async (roomCode: string): Promise<void> => {
-  const roomRef = ref(database, `rooms/${roomCode}`);
-  await remove(roomRef);
+  const rooms = getAllRooms();
+  delete rooms[roomCode];
+  saveRooms(rooms);
+};
+
+// Subscribe to room changes
+export const subscribeToRoom = (
+  roomCode: string,
+  callback: () => void
+): (() => void) => {
+  if (!listeners[roomCode]) {
+    listeners[roomCode] = new Set();
+  }
+
+  listeners[roomCode].add(callback);
+
+  // Return unsubscribe function
+  return () => {
+    listeners[roomCode].delete(callback);
+  };
 };

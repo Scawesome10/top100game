@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { createGameRoom, joinGameRoom, generatePlayerId } from '../gameManager';
 import './Lobby.css';
 

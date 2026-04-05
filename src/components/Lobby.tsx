@@ -28,7 +28,9 @@ const Lobby: React.FC<LobbyProps> = ({ onGameStart }) => {
       await joinGameRoom(newRoomCode, playerName, playerId, true);
       onGameStart(newRoomCode, playerId, playerName);
     } catch (err) {
-      setError('Failed to create room. Please try again.');
+      console.error('Create room failed:', err);
+      const message = err instanceof Error ? err.message : 'Failed to create room. Please try again.';
+      setError(`Failed to create room: ${message}`);
     } finally {
       setIsCreating(false);
     }
@@ -58,7 +60,9 @@ const Lobby: React.FC<LobbyProps> = ({ onGameStart }) => {
         onGameStart(roomCode.toUpperCase(), playerId, playerName);
       }
     } catch (err) {
-      setError('Failed to join room. Please try again.');
+      console.error('Join room failed:', err);
+      const message = err instanceof Error ? err.message : 'Failed to join room. Please try again.';
+      setError(`Failed to join room: ${message}`);
     } finally {
       setIsJoining(false);
     }

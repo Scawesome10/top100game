@@ -47,7 +47,8 @@ const RoomLobby: React.FC<RoomLobbyProps> = ({
   const handleStartGame = async () => {
     if (!isHost || !room || room.gameStatus !== 'waiting') return;
 
-    const playerCount = Object.keys(room.players).length;
+    const players = room.players || {};
+    const playerCount = Object.keys(players).length;
     if (playerCount < 2) {
       setError('Need at least 2 players to start');
       return;

@@ -28,7 +28,13 @@ export const createGameRoom = async (): Promise<string> => {
     createdAt: Date.now(),
   };
 
-  await set(roomRef, newRoom);
+  try {
+    await set(roomRef, newRoom);
+  } catch (err) {
+    console.error('Firebase create room error:', err);
+    throw err;
+  }
+
   return roomCode;
 };
 
@@ -46,13 +52,14 @@ export const joinGameRoom = async (
   }
 
   const room = snapshot.val() as GameRoom;
+  const players = room.players || {};
 
   const newPlayer: Player = {
     id: playerId,
     name: playerName,
     role: null,
     vote: null,
-    isHost: isHost || Object.keys(room.players).length === 0,
+    isHost: isHost || Object.keys(players).length === 0,
     joinedAt: Date.now(),
   };
 
@@ -60,7 +67,7 @@ export const joinGameRoom = async (
   await set(playerRef, newPlayer);
 
   // Update host if this is the first player
-  if (Object.keys(room.players).length === 0) {
+  if (Object.keys(players).length === 0) {
     const hostRef = ref(database, `rooms/${roomCode}/hostId`);
     await set(hostRef, playerId);
   }
@@ -104,7 +111,8 @@ export const assignRoles = async (roomCode: string): Promise<void> => {
   const room = await getGameRoom(roomCode);
   if (!room) return;
 
-  const playerIds = Object.keys(room.players);
+  const players = room.players || {};
+  const playerIds = Object.keys(players);
   const numPlayers = playerIds.length;
 
   // Calculate how many liars (1/3 of players, minimum 1, maximum 25%)
@@ -139,7 +147,8 @@ export const startGame = async (roomCode: string): Promise<void> => {
   // Reset player votes
   const room = await getGameRoom(roomCode);
   if (room) {
-    for (const playerId of Object.keys(room.players)) {
+    const players = room.players || {};
+    for (const playerId of Object.keys(players)) {
       const playerVoteRef = ref(database, `rooms/${roomCode}/players/${playerId}/vote`);
       await set(playerVoteRef, null);
     }
@@ -163,7 +172,8 @@ export const nextConfession = async (roomCode: string): Promise<void> => {
   // Reset player votes and reset role assignment
   const room2 = await getGameRoom(roomCode);
   if (room2) {
-    for (const playerId of Object.keys(room2.players)) {
+    const players = room2.players || {};
+    for (const playerId of Object.keys(players)) {
       const playerVoteRef = ref(database, `rooms/${roomCode}/players/${playerId}/vote`);
       await set(playerVoteRef, null);
       const playerRoleRef = ref(database, `rooms/${roomCode}/players/${playerId}/role`);

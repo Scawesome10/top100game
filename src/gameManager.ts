@@ -115,8 +115,15 @@ export const assignRoles = async (roomCode: string): Promise<void> => {
   const playerIds = Object.keys(players);
   const numPlayers = playerIds.length;
 
-  // Calculate how many liars (1/3 of players, minimum 1, maximum 25%)
-  const numLiars = Math.max(1, Math.ceil(numPlayers / 3));
+  // Determine number of liars based on player count
+  let numLiars: number;
+  if (numPlayers <= 5) {
+    numLiars = 1;
+  } else if (numPlayers <= 8) {
+    numLiars = 2;
+  } else {
+    numLiars = 3;
+  }
 
   // Shuffle and assign
   const shuffled = playerIds.sort(() => Math.random() - 0.5);

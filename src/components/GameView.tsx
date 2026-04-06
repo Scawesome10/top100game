@@ -112,8 +112,8 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
                 </div>
                 <div className="role-description">
                   {currentPlayer.role === 'truth' 
-                    ? 'Give your honest opinion' 
-                    : 'Give the opposite opinion'}
+                    ? 'You will tell the truth' 
+                    : 'You will tell a lie'}
                 </div>
               </div>
             )}

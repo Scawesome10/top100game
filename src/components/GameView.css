@@ -134,45 +134,27 @@
   font-weight: 600;
 }
 
-.buttons {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+.next-confession-section {
+  text-align: center;
+  margin: 30px 0;
 }
 
-.buttons button,
-.acceptable,
-.too-far {
-  flex: 1;
-  padding: 14px 20px;
+.btn-next-confession {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border: none;
-  border-radius: 8px;
+  padding: 15px 30px;
+  border-radius: 25px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
-.acceptable {
-  background: #4CAF50;
-  color: white;
-}
-
-.acceptable:hover {
-  background: #45a049;
+.btn-next-confession:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
-}
-
-.too-far {
-  background: #f44336;
-  color: white;
-}
-
-.too-far:hover {
-  background: #da190b;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(244, 67, 54, 0.3);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .voted-message {

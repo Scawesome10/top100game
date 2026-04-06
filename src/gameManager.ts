@@ -183,6 +183,10 @@ export const nextConfession = async (roomCode: string): Promise<void> => {
 
   // Re-assign roles
   await assignRoles(roomCode);
+
+  // Set status back to voting for next round
+  const statusRef = ref(database, `rooms/${roomCode}/gameStatus`);
+  await set(statusRef, 'voting');
 };
 
 export const revealResults = async (roomCode: string): Promise<void> => {

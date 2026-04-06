@@ -164,6 +164,7 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
           </div>
         </div>
       )}
+      {selectedGuess && Object.keys(room.roundGuesses || {}).length === players.length && (
         <div className="results-section">
           <div className="results-reveal">
             {players.map(p => (

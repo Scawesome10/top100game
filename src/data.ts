@@ -10,7 +10,7 @@ export const confessions: Confession[] = [
     text: "I got a promotion at work by taking partial credit for my colleague's project. They never found out."
   },
   {
-    text: "My parents paid for my university but I dropped out and didn't tell them for 6 months. I spent the tuition money on myself."
+    text: "My friend was also applying for the same dream job. I knew they were struggling financially and needed it more than I did, but I didn't tell them about the position so I could apply alone."
   },
   {
     text: "I knew my friend was in a toxic relationship but I didn't speak up because I didn't want them to resent me."
@@ -28,7 +28,7 @@ export const confessions: Confession[] = [
     text: "I found out my best friend was talking badly about me behind my back but I pretended I didn't know."
   },
   {
-    text: "I called in sick to work because I just didn't feel like going, not because I was actually ill."
+    text: "I was the only one who witnessed my coworker stealing from the company, but I stayed silent because reporting them would have ruined their career and they had a family to support."
   },
   {
     text: "I watched someone get bullied in school and did nothing because I was afraid of becoming a target myself."
@@ -43,7 +43,7 @@ export const confessions: Confession[] = [
     text: "I got my current job partly because I exaggerated my previous experience on my CV."
   },
   {
-    text: "I've been pretending to enjoy my job for years just because I'm good at it and afraid of starting over."
+    text: "My friend asked me to lie to their spouse about where they were going. Instead of lying, I refused to help, which made them cancels their plans and damaged their trust in me."
   },
   {
     text: "I spent money I was saving for an emergency on something I wanted instead and didn't tell my family."
@@ -52,7 +52,7 @@ export const confessions: Confession[] = [
     text: "I told my friend I couldn't afford to go on vacation with them when really I just didn't want to spend time with their new partner."
   },
   {
-    text: "I knew about a major mistake my team made at work but I let my boss find out himself instead of warning him."
+    text: "I knew my employee made a significant mistake on a project, but I didn't correct them because showing them up in front of the team would have hurt their confidence."
   },
   {
     text: "I've taken credit for helping a friend when really I only encouraged them to solve it themselves."
@@ -61,6 +61,6 @@ export const confessions: Confession[] = [
     text: "I promised to show up to an important event but bailed last minute without a good reason."
   },
   {
-    text: "I've told my family I'm saving money for something important when actually I've been spending it on guilty pleasures."
+    text: "I saw someone drop cash on the street and I kept it without trying to find the owner because I was struggling financially."
   }
 ];

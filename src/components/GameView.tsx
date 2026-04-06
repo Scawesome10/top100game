@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { database } from '../firebase.config';
 import { ref, onValue } from 'firebase/database';
 import { confessions } from '../data';
-import { updatePlayerVote, updatePlayerGuess, nextConfession } from '../gameManager';
+import { updatePlayerGuess, nextConfession } from '../gameManager';
 import type { GameRoom, Player } from '../types';
 import './GameView.css';
 
@@ -20,7 +20,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
   const [room, setRoom] = useState<GameRoom | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [hasVoted, setHasVoted] = useState(false);
   const [selectedGuess, setSelectedGuess] = useState<string | null>(null);
   const [showRole, setShowRole] = useState(false);
 
@@ -38,7 +37,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
         const current = roomData.players[playerId];
         if (current) {
           setCurrentPlayer(current);
-          setHasVoted(current.vote !== null);
         }
 
         // Check if game has ended
@@ -52,15 +50,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
       unsubscribe();
     };
   }, [roomCode, playerId, onGameEnd]);
-
-  const handleVote = async (vote: 'acceptable' | 'too-far') => {
-    try {
-      await updatePlayerVote(roomCode, playerId, vote);
-      setHasVoted(true);
-    } catch (err) {
-      console.error('Failed to vote:', err);
-    }
-  };
 
   const handleGuess = async (guessedPlayerId: string) => {
     if (selectedGuess !== guessedPlayerId) {
@@ -78,7 +67,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
   const handleContinue = async () => {
     try {
       await nextConfession(roomCode);
-      setHasVoted(false);
       setSelectedGuess(null);
       setShowRole(false);
     } catch (err) {
@@ -131,37 +119,11 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
             )}
           </div>
 
-          {!hasVoted ? (
-            <div className="voting-section">
-              <p className="voting-prompt">Is this confession "Too Far"?</p>
-              <div className="buttons">
-                <button 
-                  className="acceptable" 
-                  onClick={() => handleVote('acceptable')}
-                >
-                  ✓ Acceptable
-                </button>
-                <button 
-                  className="too-far" 
-                  onClick={() => handleVote('too-far')}
-                >
-                  ✗ Too Far
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="voted-message">
-              <p>✓ You've voted!</p>
-              <p className="waiting-text">
-                Waiting for {players.length - Object.keys(room.roundVotes || {}).length} more player(s)...
-              </p>
-              <div className="players-voted">
-                {players.map(p => (
-                  <div key={p.id} className={`player-dot ${room.roundVotes?.[p.id] ? 'voted' : ''}`}>
-                    {room.roundVotes?.[p.id] ? '✓' : '○'}
-                  </div>
-                ))}
-              </div>
+          {showRole && (
+            <div className="next-confession-section">
+              <button className="btn-next-confession" onClick={handleContinue}>
+                Next Confession
+              </button>
             </div>
           )}
         </>
@@ -215,9 +177,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
                     {p.role === 'truth' ? 'TRUTH' : 'LIE'}
                   </span>
                 </div>
-                <div className="result-vote">
-                  {room.roundVotes?.[p.id] === 'too-far' ? '✗ Too Far' : '✓ Acceptable'}
-                </div>
                 {room.roundGuesses?.[p.id] && (
                   <div className="result-guess">
                     Thinks {players.find(pl => pl.id === room.roundGuesses?.[p.id])?.name} is lying
@@ -238,9 +197,6 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
         <div className="players">
           {players.map(p => (
             <div key={p.id} className={`player ${p.id === playerId ? 'current' : ''}`}>
-              <div className="player-dot-indicator">
-                {room.roundVotes?.[p.id] && '✓'}
-              </div>
               {p.name}
             </div>
           ))}

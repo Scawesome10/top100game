@@ -189,7 +189,19 @@ const GameView: React.FC<MultiplayerGameViewProps> = ({
         </div>
       )}
 
-      {selectedGuess && (
+      {selectedGuess && Object.keys(room.roundGuesses || {}).length < players.length && (
+        <div className="waiting-results">
+          <h3>You've made your guess!</h3>
+          <p>Waiting for {players.length - Object.keys(room.roundGuesses || {}).length} more player(s) to guess...</p>
+          <div className="players-guessed">
+            {players.map(p => (
+              <div key={p.id} className={`player-guess-dot ${room.roundGuesses?.[p.id] ? 'guessed' : ''}`}>
+                {room.roundGuesses?.[p.id] ? '✓' : '○'} {p.name}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
         <div className="results-section">
           <div className="results-reveal">
             {players.map(p => (

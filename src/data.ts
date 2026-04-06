@@ -31,7 +31,7 @@ export const confessions: Confession[] = [
     text: "I was the only one who saw my coworker taking money from the petty cash box over several weeks. Reporting them would definitely get them fired. They have 2 kids and just went through a divorce. I stayed silent."
   },
   {
-    text: "In my freshman year of university, I watched a girl being pressured to drink by a group of guys at a party. I knew her casually but wasn't close to her. I left the party because I didn't want to get involved."
+    text: "My younger sibling developed a gambling addiction and lost £8,000. They begged me not to tell our parents because they knew it would devastate them and destroy their trust forever. Instead, they asked to borrow £6,000 to pay off a creditor who was threatening them. I knew lending money would enable their addiction, but not helping meant forcing them to confess to our parents or face dangerous consequences. I lent them the money and have been keeping their secret for over a year."
   },
   {
     text: "I told my partner I loved them after our second date because I could tell it's what they wanted to hear. I'm still not sure I do, but they're a good person and I don't want to hurt them."

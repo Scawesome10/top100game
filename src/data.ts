@@ -10,7 +10,7 @@ export const confessions: Confession[] = [
     text: "I got a promotion over my colleague by taking partial credit for their project. I did contribute some ideas, but they did 80% of the work. They never found out."
   },
   {
-    text: "My friend was also applying for the same entry-level job. They were broke and needed it desperately. A recruiter showed me the position was opening, but I applied without telling them so I'd have better odds."
+    text: "My friend was also applying for the same entry-level job. They were broke and needed it desperately, but I was also struggling financially and really wanted the position. A recruiter showed me the position was opening, but I applied without telling them so I'd have better odds."
   },
   {
     text: "My friend was dating someone emotionally abusive who controlled their money and made them isolated. I saw it clearly but stayed quiet because whenever I brought up concerns before, they got defensive and cut me out for weeks."
@@ -40,13 +40,13 @@ export const confessions: Confession[] = [
     text: "I spilled red wine on my roommate's white carpet. They weren't home, so I bought the same brand of carpet from a secondhand site and replaced just that section. They still don't know it happened."
   },
   {
-    text: "On my CV, I listed 5 years of experience when I only had 2. I mentioned specific projects I marginally contributed to. I shouldn't have gotten the job, but here I am 4 years later."
+    text: "On my CV, I listed 5 years of experience when I only had 2. I mentioned specific projects I marginally contributed to, but the role valued transferable skills and I've been excelling in the position for 4 years now."
   },
   {
     text: "My friend asked me to tell his wife he was at the gym when he was actually meeting his ex. I refused to lie because I don't want to be part of that. Now he thinks I'm self-righteous and won't invite me to things."
   },
   {
-    text: "I won £10,000 in an online lottery. I told my partner I was only saving my salary for our house down payment, but I've actually been spending half of the lottery money on myself without telling them."
+    text: "I won £10,000 in an online lottery. I told my partner I was only saving my salary for our house down payment, but I've actually been spending half of the lottery money on myself without telling them. My partner tends to be impulsive with windfalls, so I wanted to invest it wisely for our future."
   },
   {
     text: "My best friend told me they couldn't afford to go on a trip I planned. Later I found out they went to Bali with their new partner. They didn't want to spend time with my boyfriend, who they don't get along with."
@@ -55,7 +55,7 @@ export const confessions: Confession[] = [
     text: "My junior employee made a small mathematical error in a spreadsheet that affected cost calculations by about 2%. It wouldn't be caught for months and the impact was minimal. I decided not to mention it to protect their confidence rather than embarrass them in a meeting."
   },
   {
-    text: "My friend was struggling to fix a technical problem at work for days. I suggested how to approach it, and they solved it themselves. Later I took credit in front of others for 'helping them solve it.'"
+    text: "My friend was struggling to fix a technical problem at work for days. I suggested how to approach it, and they solved it themselves. Later I took credit in front of others for 'helping them solve it,' but it was in a casual team meeting where everyone shares contributions."
   },
   {
     text: "I promised my grandmother I'd be at her 80th birthday dinner. The day came and I didn't feel like leaving the house. I texted a lie saying I got sick instead of admitting I just couldn't be bothered."
